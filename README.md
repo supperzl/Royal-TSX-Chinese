@@ -1,94 +1,90 @@
 # Royal TSX 中文汉化脚本
 
-这个仓库用于**直接汉化已安装的 macOS 应用 `Royal TSX.app`**（不是源码编译）。
+这个仓库用于直接汉化你本机已安装的 `Royal TSX.app`（不是源码编译）。
 
 ## 适用版本
 
 - `Royal TSX 6.3.0.1000`
 
-脚本会做三件事：
+## 汉化方式
 
-1. 自动备份当前 App 语言文件
-2. 补齐 `Localizable.strings` 里未汉化/英文残留文案
-3. 给插件商店（Plugin Gallery）注入中文语言包，并支持 `zh-Hans/zh_CN` 自动识别
+采用固定模板替换：
+
+1. 仓库内保存已完成汉化的目标文件
+2. 执行脚本时先备份原文件
+3. 再把模板文件直接覆盖到 App 对应路径
+
+不依赖在线翻译，不做动态词条处理，结果可复现。
 
 ## 目录结构
 
-- `royal_chinese.sh`：一键入口（推荐执行这个）
-- `royal_chinese`：无后缀兼容入口（等价）
-- `scripts/royal_chinese.mjs`：主逻辑脚本
-- `translations/localizable-overrides.json`：人工校对过的固定译文
-- `translations/google-cache.json`：在线翻译缓存（可提交，也可忽略）
-- `backups/`：每次执行前自动备份（默认 git 忽略）
+- `royal_chinese.sh`：入口脚本（推荐）
+- `scripts/royal_chinese.mjs`：主逻辑
+- `templates/6.3.0.1000/`：该版本的汉化模板文件
+- `templates/6.3.0.1000/MANIFEST.txt`：模板文件校验清单（sha256）
+- `backups/`：每次执行前自动备份
+
+## 当前替换文件
+
+- `Contents/Resources/zh-Hans.lproj/Localizable.strings`
+- `Contents/Frameworks/RoyalTSXNativeUI.framework/Versions/A/Resources/PluginGallery/index.html`
+- `Contents/Frameworks/RoyalTSXNativeUI.framework/Versions/A/Resources/PluginGallery/js/language.js`
+- `Contents/Frameworks/RoyalTSXNativeUI.framework/Versions/A/Resources/PluginGallery/js/language_zh.js`
 
 ## 使用方法
 
-### 1) 赋予执行权限（首次）
+### 1) 首次赋权
 
 ```bash
 chmod +x royal_chinese.sh
 ```
 
-### 2) 直接执行汉化
+### 2) 直接执行（自动识别 `/Applications/Royal TSX.app`）
 
 ```bash
 ./royal_chinese.sh
 ```
 
-默认目标 App：
-
-- `/Applications/Royal TSX.app`
-
-### 3) 指定 App 路径（可选）
+### 3) 指定 App 路径（如果不在默认位置）
 
 ```bash
 ./royal_chinese.sh --app "/Applications/Royal TSX.app"
 ```
 
-### 4) 只预览，不写入（可选）
+### 4) 仅预览，不写入
 
 ```bash
 ./royal_chinese.sh --dry-run
 ```
 
-### 5) 禁用在线自动翻译（仅用本地词库）（可选）
+### 5) 指定模板版本
 
 ```bash
-./royal_chinese.sh --no-auto
+./royal_chinese.sh --version 6.3.0.1000
 ```
 
-## 执行后如何生效
+## 回滚
+
+每次执行都会生成备份目录，例如：
+
+- `backups/20260302-231500/...`
+
+把备份文件复制回原 App 路径即可回滚。
+
+## 生效方式
 
 - 完全退出并重启 `Royal TSX`
-- 如果仍看到旧文案，可再次重启一次 App
-
-## 回滚方法
-
-每次执行都会在仓库内生成时间戳备份目录，例如：
-
-- `backups/20260302-223000/...`
-
-将备份文件拷回原 App 路径即可回滚。
 
 ## 常见问题
 
-### 1) 报权限错误
+### 1) 权限不足
 
-如果终端没有写入 `/Applications` 权限，可使用：
+如果没有写入 `/Applications` 权限：
 
 ```bash
 sudo ./royal_chinese.sh
 ```
 
-### 2) 为什么还有少量英文？
+### 2) 版本不一致
 
-- 某些词是产品名/协议名（如 `SSH`、`VPN`）会保留英文
-- 新版本新增文案会在下次运行脚本时继续补齐
-
-### 3) 如何手工修正文案？
-
-编辑：
-
-- `translations/localizable-overrides.json`
-
-把英文 key 对应到你想要的中文 value，再重新执行脚本。
+脚本会显示当前 App 构建号和模板版本。若不一致，请先确认兼容性再替换。
