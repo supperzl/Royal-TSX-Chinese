@@ -16,7 +16,7 @@
 
 - `royal_chinese.sh`：一键入口（推荐执行这个）
 - `royal_chinese`：无后缀兼容入口（等价）
-- `scripts/royal_hanhua.mjs`：主逻辑脚本
+- `scripts/royal_chinese.mjs`：主逻辑脚本
 - `translations/localizable-overrides.json`：人工校对过的固定译文
 - `translations/google-cache.json`：在线翻译缓存（可提交，也可忽略）
 - `backups/`：每次执行前自动备份（默认 git 忽略）
@@ -92,13 +92,3 @@ sudo ./royal_chinese.sh
 - `translations/localizable-overrides.json`
 
 把英文 key 对应到你想要的中文 value，再重新执行脚本。
-
-## 发布到 GitHub 建议
-
-```bash
-git init
-git add .
-git commit -m "feat: add Royal TSX localization script and docs"
-```
-
-然后关联你的远程仓库并 push。
