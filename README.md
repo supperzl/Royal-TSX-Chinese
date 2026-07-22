@@ -4,6 +4,7 @@
 
 ## 适用版本
 
+- `Royal TSX 6.4.3.1000`（默认）
 - `Royal TSX 6.3.0.1000`
 
 ## 汉化方式
@@ -20,9 +21,13 @@
 
 - `royal_chinese.sh`：入口脚本（推荐）
 - `scripts/royal_chinese.mjs`：主逻辑
+- `templates/6.4.3.1000/`：6.4.3.1000 汉化模板（默认）
+- `templates/6.4.3.1000/MANIFEST.txt`：6.4.3.1000 模板文件校验清单（sha256）
 - `templates/6.3.0.1000/`：该版本的汉化模板文件
 - `templates/6.3.0.1000/MANIFEST.txt`：模板文件校验清单（sha256）
 - `backups/`：每次执行前自动备份
+
+执行前会自动校验所选模板的 `MANIFEST.txt` 和全部 SHA-256 摘要。模板内容缺失、重复、意外或被修改时，脚本会在备份和覆盖 App 之前终止。
 
 ## 当前替换文件
 
@@ -62,6 +67,8 @@ chmod +x royal_chinese.sh
 ```bash
 ./royal_chinese.sh --version 6.3.0.1000
 ```
+
+不指定 `--version` 时使用 6.4.3.1000；需要继续处理 6.3.0.1000 时显式指定该版本。
 
 ## 回滚
 

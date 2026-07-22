@@ -11,7 +11,7 @@ const projectRoot = process.env.ROYAL_CHINESE_PROJECT_ROOT
   ? path.resolve(process.env.ROYAL_CHINESE_PROJECT_ROOT)
   : path.resolve(__dirname, "..");
 
-const DEFAULT_TEMPLATE_VERSION = "6.3.0.1000";
+const DEFAULT_TEMPLATE_VERSION = "6.4.3.1000";
 const DEFAULT_APP_CANDIDATES = [
   "/Applications/Royal TSX.app",
   path.join(os.homedir(), "Applications", "Royal TSX.app"),

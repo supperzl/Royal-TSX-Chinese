@@ -10,6 +10,7 @@ const testDir = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(testDir, "..");
 const scriptPath = path.join(repositoryRoot, "scripts", "royal_chinese.mjs");
 const templateVersion = "6.3.0.1000";
+const latestTemplateVersion = "6.4.3.1000";
 const targetFiles = [
   "Contents/Resources/zh-Hans.lproj/Localizable.strings",
   "Contents/Frameworks/RoyalTSXNativeUI.framework/Versions/A/Resources/PluginGallery/index.html",
@@ -26,6 +27,11 @@ function createFixture(t) {
   const sourceTemplate = path.join(repositoryRoot, "templates", templateVersion);
   const fixtureTemplate = path.join(projectRoot, "templates", templateVersion);
   fs.cpSync(sourceTemplate, fixtureTemplate, { recursive: true });
+  fs.cpSync(
+    path.join(repositoryRoot, "templates", latestTemplateVersion),
+    path.join(projectRoot, "templates", latestTemplateVersion),
+    { recursive: true },
+  );
 
   const infoPlist = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -55,6 +61,13 @@ function runCli({ appPath, projectRoot }) {
       env: { ...process.env, ROYAL_CHINESE_PROJECT_ROOT: projectRoot },
     },
   );
+}
+
+function runDefaultDryRun({ appPath, projectRoot }) {
+  return spawnSync(process.execPath, [scriptPath, "--app", appPath, "--dry-run"], {
+    encoding: "utf8",
+    env: { ...process.env, ROYAL_CHINESE_PROJECT_ROOT: projectRoot },
+  });
 }
 
 test("applies a template with a valid manifest and backs up every target", (t) => {
@@ -100,4 +113,13 @@ test("rejects a checksum mismatch before changing the app", (t) => {
     );
   }
   assert.equal(fs.existsSync(path.join(fixture.projectRoot, "backups")), false);
+});
+
+test("uses the 6.4.3.1000 template by default", (t) => {
+  const fixture = createFixture(t);
+
+  const result = runDefaultDryRun(fixture);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /模板版本: 6\.4\.3\.1000/);
 });
