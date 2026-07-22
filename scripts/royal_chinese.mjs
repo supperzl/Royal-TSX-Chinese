@@ -3,10 +3,13 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.resolve(__dirname, "..");
+const projectRoot = process.env.ROYAL_CHINESE_PROJECT_ROOT
+  ? path.resolve(process.env.ROYAL_CHINESE_PROJECT_ROOT)
+  : path.resolve(__dirname, "..");
 
 const DEFAULT_TEMPLATE_VERSION = "6.3.0.1000";
 const DEFAULT_APP_CANDIDATES = [
@@ -95,6 +98,51 @@ function ensureFilesExist(paths, label) {
   }
 }
 
+function verifyTemplateManifest(templateRoot, sourcePaths) {
+  const manifestPath = path.join(templateRoot, "MANIFEST.txt");
+  ensureFilesExist([manifestPath], "Template manifest");
+
+  const templateVersion = path.basename(templateRoot);
+  const expectedPaths = new Map(
+    sourcePaths.map((sourcePath) => [path.relative(templateRoot, sourcePath), sourcePath]),
+  );
+  const manifestEntries = new Map();
+
+  for (const rawLine of fs.readFileSync(manifestPath, "utf8").split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#")) {
+      continue;
+    }
+
+    const match = line.match(/^([a-f0-9]{64}) {2}templates\/([^/]+)\/(.+)$/);
+    if (!match) {
+      throw new Error(`Invalid template manifest entry: ${rawLine}`);
+    }
+
+    const [, expectedHash, entryVersion, relativePath] = match;
+    if (entryVersion !== templateVersion || !expectedPaths.has(relativePath)) {
+      throw new Error(`Unexpected template manifest entry: ${rawLine}`);
+    }
+    if (manifestEntries.has(relativePath)) {
+      throw new Error(`Duplicate template manifest entry: ${relativePath}`);
+    }
+
+    manifestEntries.set(relativePath, expectedHash);
+  }
+
+  for (const [relativePath, sourcePath] of expectedPaths) {
+    const expectedHash = manifestEntries.get(relativePath);
+    if (!expectedHash) {
+      throw new Error(`Template manifest entry missing: ${relativePath}`);
+    }
+
+    const actualHash = createHash("sha256").update(fs.readFileSync(sourcePath)).digest("hex");
+    if (actualHash !== expectedHash) {
+      throw new Error(`Template checksum mismatch: ${relativePath}`);
+    }
+  }
+}
+
 function getTimestamp() {
   const now = new Date();
   const pad = (value) => String(value).padStart(2, "0");
@@ -153,6 +201,7 @@ function main() {
   const templateRoot = path.join(projectRoot, "templates", options.templateVersion);
   const sourcePaths = TARGET_FILES.map((item) => path.join(templateRoot, item));
   ensureFilesExist(sourcePaths, "Template files");
+  verifyTemplateManifest(templateRoot, sourcePaths);
 
   const infoPlist = path.join(appPath, "Contents", "Info.plist");
   if (!exists(infoPlist)) {
