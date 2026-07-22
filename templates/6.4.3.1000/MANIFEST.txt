@@ -1,0 +1,7 @@
+# Template Version: 6.4.3.1000
+# Generated: 2026-07-22 13:40:41 +0800
+
+9f81dbafb184fba148b22baf483fdd0f01ccdc06d5df4f7d0587acb5092bb4da  templates/6.4.3.1000/Contents/Frameworks/RoyalTSXNativeUI.framework/Versions/A/Resources/PluginGallery/index.html
+d853d95e7cfff26e896a6da33662ea4b5f8a04bff69b51b403543dee6b325a45  templates/6.4.3.1000/Contents/Frameworks/RoyalTSXNativeUI.framework/Versions/A/Resources/PluginGallery/js/language.js
+cc34f5b415f3d3590979caade423d4660c3c7187a7775b893b52936b909c688a  templates/6.4.3.1000/Contents/Frameworks/RoyalTSXNativeUI.framework/Versions/A/Resources/PluginGallery/js/language_zh.js
+055d7ec4633d0e14f254dc1f224513dfa9ccbf174da5ac8e102af3f2120fec34  templates/6.4.3.1000/Contents/Resources/zh-Hans.lproj/Localizable.strings
